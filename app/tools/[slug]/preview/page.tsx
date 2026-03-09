@@ -118,7 +118,7 @@ export default function PreviewPage() {
           <div className="bg-white w-full max-w-sm rounded-[40px] p-10 shadow-2xl">
             <div className="mb-8 relative flex items-center justify-center">
               <div className="w-24 h-24 rounded-full border-[6px] border-slate-100 border-t-blue-600 animate-spin absolute"></div>
-              <img src="/icon.png" alt="icon" className="w-18 h-16 relative z-10" />
+              <img src="/icon.png" alt="icon" className="w-20 h-20 relative z-10" />
             </div>
             <h2 className="text-2xl font-black text-slate-800 mb-2">{progress < 90 ? "Uploading" : "Processing"}</h2>
             <div className="w-full bg-slate-100 h-3 rounded-full overflow-hidden my-6 shadow-inner">
@@ -186,4 +186,5 @@ export default function PreviewPage() {
     </main>
   );
 }
+
 
