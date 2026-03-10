@@ -2,11 +2,15 @@
 
 import { useEffect, useState, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { FileText, X, ArrowLeft, Plus, Settings2, HardDrive } from "lucide-react";
+import { 
+  FileText, X, ArrowLeft, Plus, Settings2, HardDrive, 
+  FileSpreadsheet, File penLine, File
+} from "lucide-react";
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { arrayMove, SortableContext, rectSortingStrategy, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { getUploadedFiles } from "@/lib/fileStore";
+
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 /* ---------- SORTABLE FILE CARD ---------- */
@@ -19,6 +23,17 @@ function SortableFile({ file, removeFile }: { file: any; removeFile: (id: string
     zIndex: isDragging ? 50 : 1,
   };
 
+  // Function to get Icon and Color based on file extension
+  const getFileInfo = (fileName: string) => {
+    const ext = fileName.split('.').pop()?.toLowerCase();
+    if (['xls', 'xlsx', 'csv'].includes(ext!)) return { icon: <FileSpreadsheet className="md:w-10 md:h-10" />, color: "text-emerald-600", bg: "bg-emerald-50" };
+    if (['doc', 'docx'].includes(ext!)) return { icon: <FileText className="md:w-10 md:h-10" />, color: "text-blue-600", bg: "bg-blue-50" };
+    if (ext === 'pdf') return { icon: <File className="md:w-10 md:h-10" />, color: "text-red-600", bg: "bg-red-50" };
+    return { icon: <FileText className="md:w-10 md:h-10" />, color: "text-slate-600", bg: "bg-slate-50" };
+  };
+
+  const info = getFileInfo(file.name);
+
   const formatSize = (bytes: number) => {
     if (!bytes) return "0 KB";
     const kb = bytes / 1024;
@@ -28,7 +43,6 @@ function SortableFile({ file, removeFile }: { file: any; removeFile: (id: string
   return (
     <div ref={setNodeRef} style={style} className={`${isDragging ? "opacity-40 scale-95" : ""} transition-all w-full flex justify-center`}>
       <div className="relative bg-white border-2 border-slate-100 rounded-[24px] md:rounded-[32px] p-4 md:p-6 shadow-sm hover:shadow-xl flex flex-col items-center w-full max-w-[240px] md:max-w-[280px] min-h-[180px] md:min-h-[220px]">
-        {/* Remove Button */}
         <button
           onClick={() => removeFile(file.id)}
           className="absolute -top-1 -right-1 md:-top-2 md:-right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1.5 z-10 shadow-lg"
@@ -37,12 +51,11 @@ function SortableFile({ file, removeFile }: { file: any; removeFile: (id: string
         </button>
 
         <div {...attributes} {...listeners} className="flex flex-col items-center gap-3 md:gap-4 cursor-grab w-full h-full">
-          <div className="w-14 h-14 md:w-20 md:h-20 bg-blue-50 flex items-center justify-center rounded-[18px] md:rounded-[24px] text-blue-600 shrink-0">
-            <FileText size={28} className="md:w-10 md:h-10" />
+          <div className={`w-14 h-14 md:w-20 md:h-20 ${info.bg} ${info.color} flex items-center justify-center rounded-[18px] md:rounded-[24px] shrink-0`}>
+            {info.icon}
           </div>
           
           <div className="text-center w-full flex flex-col items-center flex-grow justify-between">
-            {/* FILE NAME: Breaks words to show full name */}
             <h4 className="text-[11px] md:text-sm font-black text-slate-800 break-all w-full px-1 leading-tight mb-2">
               {file.name}
             </h4>
@@ -75,10 +88,14 @@ export default function PreviewPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }));
 
+  // Logic to determine allowed modes
   const isMergeMode = slug === "merge-pdf";
   const isImageMode = slug === "image-to-pdf";
-  const isDocMode = ["word-to-pdf", "excel-to-pdf"].includes(slug);
-  const allowMultiple = isMergeMode || isImageMode || isDocMode;
+  const isWordMode = slug === "word-to-pdf";
+  const isExcelMode = slug === "excel-to-pdf";
+  
+  // Decide if multiple files are allowed (Merge/Images usually support multiple)
+  const allowMultiple = isMergeMode || isImageMode;
 
   useEffect(() => {
     const uploaded = getUploadedFiles();
@@ -125,7 +142,7 @@ export default function PreviewPage() {
       size: f.size,
       file: f,
     }));
-    setFiles((prev) => [...prev, ...newlyAdded]);
+    setFiles((prev) => allowMultiple ? [...prev, ...newlyAdded] : newlyAdded);
   };
 
   const handleGenerate = () => {
@@ -134,7 +151,7 @@ export default function PreviewPage() {
     setProgress(0);
 
     const formData = new FormData();
-    if (isMergeMode || isImageMode) {
+    if (allowMultiple) {
       files.forEach((f) => formData.append("files", f.file));
     } else {
       formData.append("file", files[0].file);
@@ -171,6 +188,14 @@ export default function PreviewPage() {
     xhr.open("POST", `${BASE_URL}/${slug}`);
     xhr.responseType = "blob";
     xhr.send(formData);
+  };
+
+  // Dynamic Accept Logic
+  const getAcceptString = () => {
+    if (isImageMode) return "image/*";
+    if (isWordMode) return ".doc,.docx";
+    if (isExcelMode) return ".xls,.xlsx";
+    return ".pdf";
   };
 
   return (
@@ -230,7 +255,6 @@ export default function PreviewPage() {
           </div>
         )}
 
-        {/* --- DYNAMIC GRID (SINGLE FILE CENTER LOGIC) --- */}
         <div className="w-full flex justify-center px-2">
           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
             <SortableContext items={files.map((f) => f.id)} strategy={rectSortingStrategy}>
@@ -265,12 +289,11 @@ export default function PreviewPage() {
         type="file"
         ref={fileInputRef}
         multiple={allowMultiple}
-        accept={slug === "image-to-pdf" ? "image/*" : ".pdf,.doc,.docx,.xls,.xlsx"}
+        accept={getAcceptString()}
         className="hidden"
         onChange={addMoreFiles}
       />
 
-      {/* STICKY BOTTOM BUTTON */}
       <div className="fixed bottom-6 md:bottom-10 left-0 right-0 flex justify-center px-4 md:px-6 z-40">
         <button
           onClick={handleGenerate}
@@ -282,5 +305,4 @@ export default function PreviewPage() {
       </div>
     </main>
   );
-
 }
