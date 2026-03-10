@@ -50,6 +50,11 @@ export default function DownloadPage() {
 
   const handleGoBack = () => {
 
+    router.push(`/tools/${slug}`);
+
+  };
+    const handleGoHome = () => {
+
     router.push(`/#tools`);
 
   };
@@ -266,7 +271,7 @@ export default function DownloadPage() {
 
             <button 
 
-                onClick={handleGoBack}
+                onClick={handleGoHome}
 
                 className="text-blue-600 hover:underline font-black flex items-center gap-2 text-sm sm:text-base p-2"
 
@@ -285,5 +290,6 @@ export default function DownloadPage() {
     </main>
 
   );
+
 
 }
