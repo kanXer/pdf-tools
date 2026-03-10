@@ -83,8 +83,8 @@ export default function Navbar() {
                     <RefreshCw size={12} /> Convert from PDF
                   </div>
                   <div className="grid grid-cols-2 gap-3">
-                    <Link href="/tools/pdf-to-jpg" className="text-sm font-semibold text-slate-700 hover:text-blue-600 transition">PDF to JPG</Link>
-                    <Link href="/tools/pdf-to-png" className="text-sm font-semibold text-slate-700 hover:text-blue-600 transition">PDF to PNG</Link>
+                    <Link href="/notCreated/tools/pdf-to-jpg" className="text-sm font-semibold text-slate-700 hover:text-blue-600 transition">PDF to JPG</Link>
+                    <Link href="/notCreated/tools/pdf-to-png" className="text-sm font-semibold text-slate-700 hover:text-blue-600 transition">PDF to PNG</Link>
                   </div>
                 </div>
 

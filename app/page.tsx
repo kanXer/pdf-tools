@@ -66,14 +66,14 @@ export default function Home() {
     {
       name: "PDF to JPG",
       description: "Extract images or save pages as JPG.",
-      link: "/tools/pdf-to-jpg",
+      link: "/notCreated/tools/pdf-to-jpg",
       color: "from-emerald-400 to-teal-600",
       icon: FileImage,
     },
     {
       name: "PDF to PNG",
       description: "High quality page to PNG conversion.",
-      link: "/tools/pdf-to-png",
+      link: "/notCreated/tools/pdf-to-png",
       color: "from-teal-400 to-cyan-600",
       icon: FileImage,
     },
