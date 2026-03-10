@@ -7,8 +7,7 @@ import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from 
 import { arrayMove, SortableContext, rectSortingStrategy, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { getUploadedFiles } from "@/lib/fileStore";
-
-const BASE_URL = "http://localhost:3001";
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 /* ---------- SORTABLE FILE CARD ---------- */
 function SortableFile({ file, removeFile }: { file: any; removeFile: (id: string) => void }) {
@@ -283,4 +282,5 @@ export default function PreviewPage() {
       </div>
     </main>
   );
+
 }
